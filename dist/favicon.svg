@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <circle cx="256" cy="256" r="256" fill="#22c55e"/>
+  <polygon points="180,140 180,372 390,256" fill="white" opacity="0.2"/>
+  <text x="256" y="340" font-family="Arial Black,sans-serif" font-size="280" font-weight="900" text-anchor="middle" fill="white">S</text>
+</svg>
