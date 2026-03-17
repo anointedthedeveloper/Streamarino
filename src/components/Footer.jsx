@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Star } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -25,7 +25,17 @@ export default function Footer() {
           </a>
         </div>
 
-        <p className="text-sm text-gray-500 mt-4">
+        <a
+          href="https://github.com/anointedthedeveloper/Streamarino"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 border border-gray-200 dark:border-gray-700 hover:border-primary-accent hover:text-primary-accent px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+        >
+          <Star size={16} className="fill-current text-primary-accent" />
+          Star us on GitHub
+        </a>
+
+        <p className="text-sm text-gray-500">
           © {new Date().getFullYear()} Streamarino. All rights reserved.
         </p>
       </div>

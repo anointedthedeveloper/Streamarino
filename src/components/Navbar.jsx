@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Sun, Moon, Play } from 'lucide-react';
+import { Search, Sun, Moon, Play, Star } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Navbar() {
@@ -19,7 +19,16 @@ export default function Navbar() {
           <Search size={20} />
           <span>Search</span>
         </Link>
-        <button 
+        <a
+          href="https://github.com/anointedthedeveloper/Streamarino"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden sm:flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-primary-accent hover:text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+        >
+          <Star size={14} className="fill-current" />
+          Star
+        </a>
+        <button
           onClick={toggleTheme}
           className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >

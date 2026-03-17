@@ -16,19 +16,16 @@ export const searchMovies = async (query) => {
   return response.data;
 };
 
-export const fetchDetail = async (slug) => {
-  const response = await api.get(`/detail?slug=${slug}`);
-  return response.data;
+export const fetchMoreContent = async (page = 1) => {
+  // Rotate through generic queries to get varied content on each page
+  const queries = ['movie', 'series', 'drama', 'action', 'comedy', 'thriller', 'romance', 'anime', 'horror', 'adventure'];
+  const query = queries[(page - 1) % queries.length];
+  const response = await api.get(`/search?q=${query}`);
+  return response.data?.results || [];
 };
 
-export const fetchStream = async ({ slug, se, ep, lang, quality }) => {
-  const params = new URLSearchParams({ slug });
-  if (se) params.append('se', se);
-  if (ep) params.append('ep', ep);
-  if (lang) params.append('lang', lang);
-  if (quality) params.append('quality', quality);
-  
-  const response = await api.get(`/stream?${params.toString()}`);
+export const fetchDetail = async (slug) => {
+  const response = await api.get(`/detail?slug=${slug}`);
   return response.data;
 };
 
