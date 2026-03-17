@@ -12,7 +12,6 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const sentinelRef = useRef(null);
   const seenSlugs = useRef(new Set());
 
@@ -29,24 +28,20 @@ export default function Home() {
   }, []);
 
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
+    if (loadingMore) return;
     setLoadingMore(true);
     try {
       const results = await fetchMoreContent(page);
       const fresh = results.filter((item) => !seenSlugs.current.has(item.slug));
       fresh.forEach((item) => seenSlugs.current.add(item.slug));
-      if (fresh.length === 0) {
-        setHasMore(false);
-      } else {
-        setMoreItems((prev) => [...prev, ...fresh]);
-        setPage((p) => p + 1);
-      }
+      setMoreItems((prev) => [...prev, ...fresh]);
+      setPage((p) => p + 1);
     } catch {
-      // silently fail — don't block the page
+      // silently fail
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMore, page]);
+  }, [loadingMore, page]);
 
   // IntersectionObserver on sentinel
   useEffect(() => {
@@ -141,9 +136,17 @@ export default function Home() {
         </section>
       )}
 
-      {/* Sentinel + spinner */}
-      <div ref={sentinelRef} className="flex justify-center py-8">
-        {loadingMore && <Loader2 className="animate-spin text-primary-accent" size={32} />}
+      {/* Sentinel (auto) + Load More button */}
+      <div ref={sentinelRef} className="flex flex-col items-center gap-4 py-8">
+        {loadingMore
+          ? <Loader2 className="animate-spin text-primary-accent" size={32} />
+          : <button
+              onClick={loadMore}
+              className="bg-primary-accent hover:bg-primary-accent-hover text-white font-bold px-8 py-3 rounded-xl transition-colors"
+            >
+              Load More
+            </button>
+        }
       </div>
     </div>
   );

@@ -196,16 +196,21 @@ export default function Streaming() {
             className="w-full h-full"
           />
         ) : playerUrl ? (
-          <iframe
-            key={playerUrl}
-            src={playerUrl}
-            className="w-full h-full"
-            allowFullScreen
-            allow="autoplay; fullscreen; encrypted-media"
-            referrerPolicy="no-referrer"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-            title={detail?.title || 'Stream'}
-          />
+          <div className="relative w-full h-full">
+            <iframe
+              key={playerUrl}
+              src={playerUrl}
+              className="w-full h-full"
+              allowFullScreen
+              allow="autoplay; fullscreen; encrypted-media"
+              referrerPolicy="no-referrer"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-fullscreen"
+              title={detail?.title || 'Stream'}
+            />
+            {/* Block top bar / bottom UI chrome from the MovieBox SPA */}
+            <div className="absolute top-0 left-0 right-0 h-12 pointer-events-none bg-black" />
+            <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none bg-black" />
+          </div>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <p className="text-gray-400 text-sm">No stream available.</p>

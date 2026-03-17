@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Search as SearchIcon, Loader2 } from 'lucide-react';
-import { searchMovies } from '../services/api';
+import { searchMovies, searchDejaVu } from '../services/api';
 import MovieCard from '../components/MovieCard';
 
 export default function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState([]);
+  const [source, setSource] = useState('primary');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -20,10 +21,26 @@ export default function Search() {
       setError(null);
       try {
         const data = await searchMovies(query);
-        setResults(data?.results || []);
+        const primary = data?.results || [];
+        if (primary.length > 0) {
+          setResults(primary);
+          setSource('primary');
+        } else {
+          // Fallback to DejaVu
+          const fallback = await searchDejaVu(query);
+          setResults(fallback);
+          setSource('dejavu');
+        }
       } catch (err) {
         console.error(err);
-        setError('Search failed. Please try again.');
+        // On primary error also try DejaVu
+        try {
+          const fallback = await searchDejaVu(query);
+          setResults(fallback);
+          setSource('dejavu');
+        } catch {
+          setError('Search failed. Please try again.');
+        }
       } finally {
         setLoading(false);
       }
@@ -65,11 +82,18 @@ export default function Search() {
       ) : error ? (
         <div className="text-center py-20 text-red-500">{error}</div>
       ) : results.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-          {results.map((item, idx) => (
-            <MovieCard key={`${item.slug}-${idx}`} item={item} />
-          ))}
-        </div>
+        <>
+          {source === 'dejavu' && (
+            <p className="text-center text-xs text-gray-400 mb-6">
+              Results from DejaVu fallback — streaming may not be available for all titles
+            </p>
+          )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            {results.map((item, idx) => (
+              <MovieCard key={`${item.slug}-${idx}`} item={item} />
+            ))}
+          </div>
+        </>
       ) : query && (
         <div className="text-center py-20 text-gray-500">
           No results found for "{query}". Try searching for something else.
