@@ -1,43 +1,38 @@
 import React from 'react';
-import { ExternalLink, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Play, ExternalLink } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-primary-light dark:bg-primary-dark border-t border-gray-200 dark:border-gray-800 px-4 py-12">
-      <div className="max-w-7xl mx-auto flex flex-col items-center gap-6">
-        <div className="text-center">
-          <h2 className="text-primary-accent font-bold text-2xl mb-2">Streamarino</h2>
-          <p className="text-gray-500 max-w-md">The best place to watch movies and series online for free.</p>
-        </div>
-
-        <div className="bg-primary-accent text-white px-8 py-4 rounded-xl flex items-center gap-4 hover:bg-primary-accent-hover transition-colors shadow-lg">
-          <div className="flex flex-col">
-            <span className="font-bold">Want to download?</span>
-            <span className="text-sm opacity-90">Visit Downloaderino for fast movie downloads.</span>
+    <footer className="border-t border-gray-200 dark:border-gray-800 px-4 py-10 mt-8">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="bg-primary-accent rounded-lg p-1.5">
+            <Play size={14} className="fill-white text-white" />
           </div>
-          <a 
-            href="https://downloaderino.vercel.app/" 
-            target="_blank" 
+          <span className="font-black text-lg tracking-tight">Streamarino</span>
+        </Link>
+
+        <div className="flex items-center gap-6 text-sm text-gray-500">
+          <a
+            href="https://downloaderino.vercel.app/"
+            target="_blank"
             rel="noopener noreferrer"
-            className="bg-white text-primary-accent p-2 rounded-lg hover:scale-105 transition-transform"
+            className="flex items-center gap-1.5 hover:text-primary-accent transition-colors font-medium"
           >
-            <ExternalLink size={20} />
+            <ExternalLink size={14} /> Downloaderino
+          </a>
+          <a
+            href="https://github.com/anointedthedeveloper/Streamarino"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary-accent transition-colors"
+          >
+            GitHub
           </a>
         </div>
 
-        <a
-          href="https://github.com/anointedthedeveloper/Streamarino"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 border border-gray-200 dark:border-gray-700 hover:border-primary-accent hover:text-primary-accent px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
-        >
-          <Star size={16} className="fill-current text-primary-accent" />
-          Star us on GitHub
-        </a>
-
-        <p className="text-sm text-gray-500">
-          © {new Date().getFullYear()} Streamarino. All rights reserved.
-        </p>
+        <p className="text-xs text-gray-400">© {new Date().getFullYear()} Streamarino</p>
       </div>
     </footer>
   );
