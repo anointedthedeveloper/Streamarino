@@ -19,13 +19,14 @@ async function fetchPlayData({ subjectId, detailPath, se, ep }) {
   return json.data;
 }
 
-async function fetchPlayerUrl({ slug, se, ep }) {
+async function fetchViaClientPlayUrl({ slug, se, ep }) {
   const params = new URLSearchParams({ slug });
   if (se) params.append('se', se);
   if (ep) params.append('ep', ep);
-  const res = await fetch(`${STREAM_API}?${params}`);
-  const json = await res.json();
-  return json.playerUrl || null;
+  const meta = await fetch(`${STREAM_API}?${params}`).then((r) => r.json());
+  if (!meta.clientPlayUrl) return null;
+  const play = await fetch(meta.clientPlayUrl, { headers: meta.clientHeaders || {} }).then((r) => r.json());
+  return play?.data?.streams || null;
 }
 
 export default function Streaming() {
@@ -39,7 +40,6 @@ export default function Streaming() {
 
   const [detail, setDetail] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
-  const [playerUrl, setPlayerUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -52,7 +52,6 @@ export default function Streaming() {
     setLoading(true);
     setError(null);
     setVideoUrl(null);
-    setPlayerUrl(null);
     try {
       const dubs = detail.availableDubs || [];
       const activeDub = dubs.find((d) => d.slug === dubSlug) || dubs[0];
@@ -62,30 +61,30 @@ export default function Streaming() {
       const playData = await fetchPlayData({ subjectId, detailPath: dubSlug, se, ep });
       const streams = playData?.streams || [];
 
-      if (streams.length > 0) {
-        const picked = quality
-          ? (streams.find((s) => String(s.quality) === quality) || streams[0])
-          : streams[0];
+      const picked = streams.length > 0
+        ? (quality ? (streams.find((s) => String(s.quality) === quality) || streams[0]) : streams[0])
+        : null;
+
+      if (picked) {
         setVideoUrl(picked.url);
       } else {
-        // streams[] empty — fall back to playerUrl from our API
-        const pUrl = await fetchPlayerUrl({ slug: dubSlug, se, ep });
-        if (pUrl) {
-          setPlayerUrl(pUrl);
-        } else {
-          setError('No stream available for this title.');
-        }
+        // streams[] empty — fetch clientPlayUrl from /stream and call it directly from browser
+        const clientStreams = await fetchViaClientPlayUrl({ slug: dubSlug, se, ep });
+        const best = clientStreams
+          ? (clientStreams.find((s) => s.resolutions === '720') || clientStreams[0])
+          : null;
+        if (best?.url) setVideoUrl(best.url);
+        else setError('No stream available for this title.');
       }
     } catch (err) {
       console.error(err);
-      // On any error also try playerUrl fallback
       try {
-        const pUrl = await fetchPlayerUrl({ slug: dubSlug, se, ep });
-        if (pUrl) {
-          setPlayerUrl(pUrl);
-        } else {
-          setError(`Stream error: ${err.message}`);
-        }
+        const clientStreams = await fetchViaClientPlayUrl({ slug: dubSlug, se, ep });
+        const best = clientStreams
+          ? (clientStreams.find((s) => s.resolutions === '720') || clientStreams[0])
+          : null;
+        if (best?.url) setVideoUrl(best.url);
+        else setError(`Stream error: ${err.message}`);
       } catch {
         setError(`Stream error: ${err.message}`);
       }
@@ -195,22 +194,6 @@ export default function Streaming() {
             autoPlay
             className="w-full h-full"
           />
-        ) : playerUrl ? (
-          <div className="relative w-full h-full">
-            <iframe
-              key={playerUrl}
-              src={playerUrl}
-              className="w-full h-full"
-              allowFullScreen
-              allow="autoplay; fullscreen; encrypted-media"
-              referrerPolicy="no-referrer"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-fullscreen"
-              title={detail?.title || 'Stream'}
-            />
-            {/* Block top bar / bottom UI chrome from the MovieBox SPA */}
-            <div className="absolute top-0 left-0 right-0 h-12 pointer-events-none bg-black" />
-            <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none bg-black" />
-          </div>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <p className="text-gray-400 text-sm">No stream available.</p>
