@@ -9,6 +9,7 @@ export default function Detail() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -17,7 +18,12 @@ export default function Detail() {
         setData(result);
       } catch (err) {
         console.error(err);
-        setError('Failed to load details. Please try again.');
+        if (err.response?.status === 404) {
+          setNotFound(true);
+          setError('Title not found.');
+        } else {
+          setError('Failed to load details. Please try again.');
+        }
       } finally {
         setLoading(false);
       }
@@ -38,12 +44,14 @@ export default function Detail() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <p className="text-red-500 font-medium">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-primary-accent text-white px-6 py-2 rounded-lg font-bold hover:bg-primary-accent-hover transition-colors"
-        >
-          Retry
-        </button>
+        {!notFound && (
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-primary-accent text-white px-6 py-2 rounded-lg font-bold hover:bg-primary-accent-hover transition-colors"
+          >
+            Retry
+          </button>
+        )}
       </div>
     );
   }
